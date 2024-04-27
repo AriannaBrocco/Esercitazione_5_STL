@@ -11,11 +11,19 @@ int main()
     PolygonalMesh mesh;
 
     string nomeFile = "PolygonalMesh";
+
+    // Verifica che l'importo della mesh e tutti i test siano andati a buon fine
     if(!ImportaMesh(nomeFile,
                     mesh))
     {
+        cerr << "Impossibile importare la mesh" << endl;
         return 1;
     }
+    else
+    {
+        cout << "Mesh importata correttamente" << endl;
+    }
+
 
     return 0;
 }

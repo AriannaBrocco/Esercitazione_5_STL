@@ -7,9 +7,7 @@ using namespace std;
 
 namespace PolygonalLibrary {
 
-/// Importa la mesh poligonale e testa se è corretta
-/// Ritorna vero se la lettura ha avuto successo, falso altrimenti
-/// Anche le altre fanno le stesso
+/// Importa la mesh poligonale e testa se è corretta, ritorna vero se la lettura ha avuto successo, falso altrimenti
 bool ImportaMesh(const string &nomeFile,
                 PolygonalMesh& mesh);
 
@@ -24,5 +22,11 @@ bool ImportaCell1Ds(const string &nomeFile,
 /// Importa le proprietà delle celle 2D dal file Cell2Ds.csv
 bool ImportaCell2Ds(const string &nomeFile,
                    PolygonalMesh& mesh);
+
+/// Controlla che non ci siano lati uguali a zero
+bool LunghezzaLati(PolygonalMesh& mesh);
+
+/// Controlla che non ci siano poligoni con area uguale a zero
+bool Area(PolygonalMesh& mesh);
 
 }

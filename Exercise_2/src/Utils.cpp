@@ -11,7 +11,8 @@ namespace PolygonalLibrary {
 bool ImportaMesh(const string& nomeFile,
                 PolygonalMesh& mesh)
 {
-
+    // Test sull'importazione delle celle 0D
+    cout << "Test sulle celle 0D:" << endl;
     if(!ImportaCell0Ds(nomeFile + "/Cell0Ds.csv",
                        mesh))
     {
@@ -31,6 +32,8 @@ bool ImportaMesh(const string& nomeFile,
         cout << endl;
     }
 
+    // Test sull'importazione delle celle 1D
+    cout << "Test sulle celle 1D:" << endl;
     if(!ImportaCell1Ds(nomeFile + "/Cell1Ds.csv",
                        mesh))
     {
@@ -50,6 +53,8 @@ bool ImportaMesh(const string& nomeFile,
         cout << endl;
     }
 
+    // Test sull'importazione delle celle 2D
+    cout << "Test sulle celle 2D:" << endl;
     if(!ImportaCell2Ds(nomeFile + "/Cell2Ds.csv",
                        mesh))
     {
@@ -57,82 +62,45 @@ bool ImportaMesh(const string& nomeFile,
     }
     cout << "Corretta importazione delle celle 2D" << endl << endl;
 
-    double tol = numeric_limits<double>::epsilon();
-
     // Test sui lati
     cout << "Test sui lati: " << endl;
-    for(const auto& i : mesh.Cell1DVertices)
+    if(!LunghezzaLati(mesh))
     {
-        Vector2d coordinata1 = mesh.Cell0DCoordinates[i(0)];
-        Vector2d coordinata2 = mesh.Cell0DCoordinates[i(1)];
-        if(abs(coordinata1(0)-coordinata2(0)) < tol && abs(coordinata1(1)-coordinata2(1)) < tol)
-        {
-            cerr << "Alcuni lati hanno lunghezza nulla" << endl;
-            return false;
-        }
+        return false;
     }
     cout << "Nessun lato ha lunghezza nulla" << endl << endl;
+
+    // Test sulle aree
     cout << "Test sulle aree:" << endl;
-
-    for(const auto& lati : mesh.Cell2DEdges)
+    if(!Area(mesh))
     {
-        Vector2i puntiLato = mesh.Cell1DVertices[lati(0)];
-        Vector2d coordVertice_1 = mesh.Cell0DCoordinates[puntiLato(0)];
-        Vector2d coordVertice_2 = mesh.Cell0DCoordinates[puntiLato(1)];
-
-        // Calcola la pendenza e l'intercetta della retta passante per i due vertici del lato
-        double coef_ang = (coordVertice_2[1]-coordVertice_1[1])/(coordVertice_2[0]-coordVertice_1[0]);
-        double intercetta = coordVertice_2[0] - (coef_ang * coordVertice_1[0]);
-
-        bool su_stessa_retta = true;
-        size_t num_lati = lati.size();
-        for(size_t n = 2; n < num_lati; ++n)
-        {
-            Vector2i puntiLato_n = mesh.Cell1DVertices[lati(n)];
-            Vector2d coordVertice_n = mesh.Cell0DCoordinates[puntiLato_n(0)];
-            double y = coef_ang * coordVertice_n[0] + intercetta;
-
-            if (coordVertice_n[1] != y)
-            {
-                su_stessa_retta = false;
-                break;
-            }
-        }
-
-        if (su_stessa_retta)
-        {
-            cout << "Ci sono poligoni con area nulla" << endl;
-        }
-
+        return false;
     }
-
-    cout << "Non ci sono poligoni con area nulla" << endl;
-
+    cout << "Non ci sono poligoni con area nulla" << endl << endl;
 
     return true;
-
 }
 // ***************************************************************************
 bool ImportaCell0Ds(const string &nomeFile,
                    PolygonalMesh& mesh)
 {
-
+    // Legge il file
     ifstream file;
     file.open(nomeFile);
 
     if(file.fail())
         return false;
 
-    list<string> listLines;
-    string line;
-    while (getline(file, line))
-        listLines.push_back(line);
+    list<string> listaRighe;
+    string riga;
+    while (getline(file, riga))
+        listaRighe.push_back(riga);
 
     file.close();
 
-    listLines.pop_front();
+    listaRighe.pop_front();
 
-    mesh.NumberCell0D = listLines.size();
+    mesh.NumberCell0D = listaRighe.size();
 
     if (mesh.NumberCell0D == 0)
     {
@@ -140,12 +108,14 @@ bool ImportaCell0Ds(const string &nomeFile,
         return false;
     }
 
+    // Riserva spazio nella struttura Mesh per inserire Id e coordinate
     mesh.Cell0DId.reserve(mesh.NumberCell0D);
     mesh.Cell0DCoordinates.reserve(mesh.NumberCell0D);
 
-    for (const string& line : listLines)
+    // Per ogni riga legge i valori delle variabili inizializzate e li assegna ad esse eliminando il ; (sep)
+    for (const string& riga : listaRighe)
     {
-        istringstream converter(line);
+        istringstream converter(riga);
         char sep;
         unsigned int id;
         unsigned int marker;
@@ -172,21 +142,21 @@ bool ImportaCell0Ds(const string &nomeFile,
 bool ImportaCell1Ds(const string &nomeFile,
                    PolygonalMesh& mesh)
 {
-
+    // Agisce allo stesso modo di ImportaCell0D
     ifstream file;
     file.open(nomeFile);
 
     if(file.fail())
         return false;
 
-    list<string> listLines;
-    string line;
-    while (getline(file, line))
-        listLines.push_back(line);
+    list<string> listaRighe;
+    string riga;
+    while (getline(file, riga))
+        listaRighe.push_back(riga);
 
-    listLines.pop_front();
+    listaRighe.pop_front();
 
-    mesh.NumberCell1D = listLines.size();
+    mesh.NumberCell1D = listaRighe.size();
 
     if (mesh.NumberCell1D == 0)
     {
@@ -197,9 +167,9 @@ bool ImportaCell1Ds(const string &nomeFile,
     mesh.Cell1DId.reserve(mesh.NumberCell1D);
     mesh.Cell1DVertices.reserve(mesh.NumberCell1D);
 
-    for (const string& line : listLines)
+    for (const string& riga : listaRighe)
     {
-        istringstream converter(line);
+        istringstream converter(riga);
         char sep;
         unsigned int id;
         unsigned int marker;
@@ -234,14 +204,14 @@ bool ImportaCell2Ds(const string &nomeFile,
     if(file.fail())
         return false;
 
-    list<string> listLines;
-    string line;
-    while (getline(file, line))
-        listLines.push_back(line);
+    list<string> listaRighe;
+    string riga;
+    while (getline(file, riga))
+        listaRighe.push_back(riga);
 
-    listLines.pop_front();
+    listaRighe.pop_front();
 
-    mesh.NumberCell2D = listLines.size();
+    mesh.NumberCell2D = listaRighe.size();
 
     if (mesh.NumberCell2D == 0)
     {
@@ -250,37 +220,37 @@ bool ImportaCell2Ds(const string &nomeFile,
     }
 
     mesh.Cell2DId.reserve(mesh.NumberCell2D);
-    mesh.Cell2DNumVertices.reserve(mesh.NumberCell2D);
     mesh.Cell2DVertices.reserve(mesh.NumberCell2D);
-    mesh.Cell2DNumEdges.reserve(mesh.NumberCell2D);
     mesh.Cell2DEdges.reserve(mesh.NumberCell2D);
 
-    for (const string& line : listLines)
+    for (const string& riga : listaRighe)
     {
-        istringstream converter(line);
+        istringstream converter(riga);
         char sep;
         unsigned int id;
         unsigned int marker;
-        unsigned int NumVertices;
-        unsigned int NumEdges;
-        VectorXi vertices;
-        VectorXi edges;
+        unsigned int NumVertici;
+        unsigned int NumLati;
+        VectorXi vertici;
+        VectorXi lati;
 
-        converter >> id >> sep >> marker >> sep >> NumVertices;
-        vertices.resize(NumVertices);
-        for(unsigned int i = 0; i < NumVertices; i++)
-            converter >> sep >> vertices(i);
+        // A differenza delle funzioni per le celle 0D e 1D qui è necessario utilizzare dei for per leggere i valori dei vertici e dei lati e creare dei vettori
+        // I vettori hanno dimensione inizialmente ignota e poi vengono ridimensionati in base al valore contenuto nella variabile NumVertici e NumLati
+        converter >> id >> sep >> marker >> sep >> NumVertici;
+        vertici.resize(NumVertici);
 
-        converter >> sep >> NumEdges;
-        edges.resize(NumEdges);
-        for(unsigned int i = 0; i < NumEdges; i++)
-            converter >> sep >> edges(i);
+        for(unsigned int i = 0; i < NumVertici; i++)
+            converter >> sep >> vertici(i);
+
+        converter >> sep >> NumLati;
+        lati.resize(NumLati);
+
+        for(unsigned int i = 0; i < NumLati; i++)
+            converter >> sep >> lati(i);
 
         mesh.Cell2DId.push_back(id);
-        mesh.Cell2DNumVertices.push_back(NumVertices);
-        mesh.Cell2DVertices.push_back(vertices);
-        mesh.Cell2DNumEdges.push_back(NumEdges);
-        mesh.Cell2DEdges.push_back(edges);
+        mesh.Cell2DVertices.push_back(vertici);
+        mesh.Cell2DEdges.push_back(lati);
         if( marker != 0)
         {
 
@@ -293,5 +263,66 @@ bool ImportaCell2Ds(const string &nomeFile,
     file.close();
     return true;
 }
+
+// ***************************************************************************
+bool LunghezzaLati(PolygonalMesh& mesh)
+{
+    double tol = numeric_limits<double>::epsilon();
+    // Il for scorre i vettori contenenti i vertici associati a ogni lato
+    for(const auto& vertici : mesh.Cell1DVertices)
+    {
+        // Ricavate le coordinate dei due vertici associati a un certo lato, controlla se la distanza tra essi è minore di una certa tolleranza
+        Vector2d coordinate1 = mesh.Cell0DCoordinates[vertici(0)];
+        Vector2d coordinate2 = mesh.Cell0DCoordinates[vertici(1)];
+        if(abs(coordinate1(0)-coordinate2(0)) < tol && abs(coordinate1(1)-coordinate2(1)) < tol)
+        {
+            cerr << "Alcuni lati hanno lunghezza nulla" << endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+// ***************************************************************************
+bool Area(PolygonalMesh& mesh)
+{
+    for(const auto& lati : mesh.Cell2DEdges)
+    {
+        // Ricava i vertici del primo lato e poi le loro coordinate
+        Vector2i verticiLato = mesh.Cell1DVertices[lati(0)];
+        Vector2d coordVertice_1 = mesh.Cell0DCoordinates[verticiLato(0)];
+        Vector2d coordVertice_2 = mesh.Cell0DCoordinates[verticiLato(1)];
+
+        // Calcola la pendenza e l'intercetta della retta passante per i due vertici del lato
+        double coef_ang = (coordVertice_2[1]-coordVertice_1[1])/(coordVertice_2[0]-coordVertice_1[0]);
+        double intercetta = coordVertice_2[0] - (coef_ang * coordVertice_1[0]);
+
+        // Controlla se gli altri punti (vertici) sono allineati ai primi due
+        bool su_stessa_retta = true;
+        size_t num_lati = lati.size();
+        for(size_t n = 2; n < num_lati; ++n)
+        {
+            Vector2i verticiLato_n = mesh.Cell1DVertices[lati(n)];
+            Vector2d coordVertice_n = mesh.Cell0DCoordinates[verticiLato_n(0)];
+            double y = coef_ang * coordVertice_n[0] + intercetta;
+
+            if (coordVertice_n[1] != y)
+            {
+                su_stessa_retta = false;
+                break;
+            }
+        }
+
+        // Se i vertici del poligono sono allineati allora avremo un'area nulla
+        if (su_stessa_retta)
+        {
+            cout << "Ci sono poligoni con area nulla" << endl;
+        }
+
+    }
+    return true;
+}
+
+
 
 }
