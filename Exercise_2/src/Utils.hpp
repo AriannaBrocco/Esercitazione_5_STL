@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <iostream>
@@ -8,7 +7,7 @@ using namespace std;
 
 namespace PolygonalLibrary {
 
-/// Importa la mesh poligonale (PolygonalMesh è una struttura) e testa se è corretta
+/// Importa la mesh poligonale e testa se è corretta
 /// Ritorna vero se la lettura ha avuto successo, falso altrimenti
 /// Anche le altre fanno le stesso
 bool ImportaMesh(const string &nomeFile,
